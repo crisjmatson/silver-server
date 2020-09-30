@@ -1,6 +1,7 @@
 require("dotenv").config();
 let router = require("express").Router();
 let Post = require("../db").import("../models/post");
+let Comment = require("../db").import("../models/comment");
 let validateSession = require("../middleware/validate-session");
 let validateAdmin = require("../middleware/validate-admin");
 
@@ -58,6 +59,69 @@ router.get("/all", validateSession, function (req, res) {
 				res.status(200).json({ posts: posts });
 			} else {
 				res.status(500).json({ error: "No posts found." });
+			}
+		})
+		.catch((err) => res.status(500).send({ error: err }));
+});
+
+router.get("/full", validateSession, function (req, res) {
+	// USER ACCESS TO SINGLE POST AND ALL COMMENTS
+	Post.findOne({ where: { id: req.body.post.id } })
+		.then(function postDisplay(post) {
+			if (post) {
+				Comment.findAll({ where: { postId: req.body.post.id } }).then(
+					function commentDisplay(comments) {
+						if (comments) {
+							res.status(200).json({ post: post, comments: comments });
+						} else {
+							res.status(500).json({ comments: "No comments found." });
+						}
+					}
+				);
+			} else {
+				res.status(500).json({ error: "Post not found." });
+			}
+		})
+		.catch((err) => res.status(500).send({ error: err }));
+});
+
+router.get("/public_full", function (req, res) {
+	// GUEST ACCESS TO SINGLE POST AND ALL COMMENTS
+	Post.findOne({ where: { id: req.body.post.id, private: false } })
+		.then(function postDisplay(post) {
+			if (post) {
+				Comment.findAll({
+					where: { postId: req.body.post.id, private: false },
+				}).then(function commentDisplay(comments) {
+					if (comments) {
+						res.status(200).json({ post: post, comments: comments });
+					} else {
+						res.status(500).json({ comments: "No comments found." });
+					}
+				});
+			} else {
+				res.status(500).json({ error: "Post not found." });
+			}
+		})
+		.catch((err) => res.status(500).send({ error: err }));
+});
+router.get("/full", validateSession, function (req, res) {
+	// USER ACCESS TO SINGLE POST AND ALL COMMENTS
+	Post.findOne({ where: { id: req.body.post.id } })
+		.then(function postDisplay(post) {
+			//res.send({ post: post });
+			if (post) {
+				Comment.findAll({ where: { postId: req.body.post.id } }).then(
+					function commentDisplay(comments) {
+						if (comments) {
+							res.status(200).json({ post: post, comments: comments });
+						} else {
+							res.status(500).json({ comments: "No comments found." });
+						}
+					}
+				);
+			} else {
+				res.status(500).json({ error: "Post not found." });
 			}
 		})
 		.catch((err) => res.status(500).send({ error: err }));

@@ -9,6 +9,7 @@ let post = require("./controllers/postcontroller");
 let comment = require("./controllers/commentcontroller");
 
 sequelize.sync();
+
 app.use(express.json());
 
 app.use("/user", user);

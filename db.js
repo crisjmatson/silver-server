@@ -1,7 +1,10 @@
 require("dotenv").config();
 const Sequelize = require("sequelize");
-const profile = require("./models/profile");
-const sequelize = new Sequelize(
+
+const sequelize = new Sequelize(process.env.NAME, {
+	dialect: "postgres",
+});
+/* const sequelize = new Sequelize(
 	process.env.NAME,
 	"postgres",
 	process.env.PG_PASS,
@@ -9,7 +12,7 @@ const sequelize = new Sequelize(
 		host: "localhost",
 		dialect: "postgres",
 	}
-);
+); */
 
 sequelize.authenticate().then(
 	function () {
