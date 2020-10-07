@@ -17,7 +17,12 @@ router.post("/start", function (req, res) {
 	})
 		.then(function userStart(user) {
 			let token = jwt.sign(
-				{ id: user.id, role: user.role },
+				{
+					id: user.id,
+					username: user.username,
+					role: user.role,
+				},
+				/* { name: user.name, id: user.id, role: user.role }, */
 				process.env.SIGNATURE,
 				{
 					expiresIn: 60 * 60 * 24,
@@ -44,7 +49,11 @@ router.post("/enter", function (req, res) {
 				) {
 					if (matches) {
 						let token = jwt.sign(
-							{ id: user.id, role: user.role },
+							{
+								id: user.id,
+								username: user.username,
+								role: user.role,
+							},
 							process.env.SIGNATURE,
 							{
 								expiresIn: 60 * 60 * 24,
@@ -63,12 +72,24 @@ router.post("/enter", function (req, res) {
 		})
 		.catch((err) => res.status(500).send({ error: err }));
 });
-
-router.get("/view", validateSession, function (req, res) {
-	let currentuser = req.user.id;
-	console.log("fetch called");
+router.get("/:id", function (req, res) {
+	// !! GET USERNAME !!
 	User.findOne({
-		where: { id: currentuser },
+		where: { id: req.params.id },
+	})
+		.then(function userDisplay(user) {
+			if (user) {
+				res.status(200).json(user.username);
+			} else {
+				res.status(500).json({ error: "user profile not available." });
+			}
+		})
+		.catch((err) => res.status(500).send({ error: err }));
+});
+
+router.get("/view/:id", validateSession, function (req, res) {
+	User.findOne({
+		where: { username: req.params.id },
 	})
 		.then(function userDisplay(user) {
 			if (user) {
@@ -82,7 +103,6 @@ router.get("/view", validateSession, function (req, res) {
 
 router.put("/update", validateSession, function (req, res) {
 	const updateUser = {
-		username: req.body.user.name,
 		email: req.body.user.mail,
 	};
 	const query = { where: { id: req.user.id } };

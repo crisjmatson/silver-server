@@ -10,6 +10,8 @@ let comment = require("./controllers/commentcontroller");
 
 sequelize.sync();
 
+app.use(require("./middleware/headers.js"));
+
 app.use(express.json());
 
 app.use("/user", user);
@@ -17,8 +19,6 @@ app.use("/profile", profile);
 app.use("/post", post);
 app.use("/comment", comment);
 
-//app.use(require("./middleware/headers.js"));
-
 app.listen(process.env.PORT, () => {
-	console.log(`Red Badge Server is running on: ${process.env.PORT}`);
+	console.log(`${process.env.NAME} is running on: ${process.env.PORT}`);
 });

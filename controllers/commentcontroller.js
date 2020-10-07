@@ -11,6 +11,7 @@ router.get("/test", function (req, res) {
 router.post("/", validateSession, function (req, res) {
 	// GENERAL COMMENT FOR ALL USERS
 	Comment.create({
+		author: req.user.username,
 		userId: req.user.id,
 		postId: req.body.comment.postId,
 		body: req.body.comment.body,
@@ -66,7 +67,7 @@ router.get("/all", validateSession, function (req, res) {
 		.catch((err) => res.status(500).send({ error: err }));
 });
 
-router.put("/update", validateSession, function (req, res) {
+router.put("/update/:id", validateSession, function (req, res) {
 	// USER ACCESS TO UPDATE OWN COMMENTS
 	const updateComment = {
 		//adding comment ID in commentman for testing- add in client selection\
@@ -74,7 +75,7 @@ router.put("/update", validateSession, function (req, res) {
 		private: req.body.comment.private,
 		edited: true,
 	};
-	const query = { where: { id: req.body.comment.id, userId: req.user.id } };
+	const query = { where: { id: req.params.id, userId: req.user.id } };
 	Comment.update(updateComment, query)
 		.then(function updatedComments(comments) {
 			if (comments[0] === 0) {
@@ -86,11 +87,11 @@ router.put("/update", validateSession, function (req, res) {
 		.catch((err) => res.status(500).send({ error: err }));
 });
 
-router.delete("/delete", validateSession, function (req, res) {
-	const query = { where: { id: req.body.comment.id, userId: req.user.id } };
+router.delete("/delete/:id", validateSession, function (req, res) {
+	const query = { where: { id: req.params.id, userId: req.user.id } };
 	Comment.destroy(query)
 		.then(function deletedComments(deleted) {
-			if (deleted === 0) {
+			if (deleted[0] === 0) {
 				res.status(500).json({ error: "Delete comment not allowed." });
 			} else {
 				res.status(200).json({ message: "Delete comment successful" });

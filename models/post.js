@@ -23,6 +23,10 @@ module.exports = (sequelize, DataTypes) => {
 			allowNull: true,
 			defaultValue: false,
 		},
+		author: {
+			type: DataTypes.STRING,
+			allowNull: false,
+		}
 	});
 	return Post;
 };

@@ -8,7 +8,9 @@ let validateAdmin = require("../middleware/validate-admin");
 router.post("/", validateSession, function (req, res) {
 	// GENERAL POST CREATION FOR ALL USERS
 	Post.create({
+		author: req.user.username,
 		userId: req.user.id,
+
 		title: req.body.post.title,
 		body: req.body.post.body,
 		tags: req.body.post.tags,
@@ -64,34 +66,34 @@ router.get("/all", validateSession, function (req, res) {
 		.catch((err) => res.status(500).send({ error: err }));
 });
 
-router.get("/full", validateSession, function (req, res) {
+router.get("/full/:id", validateSession, function (req, res) {
 	// USER ACCESS TO SINGLE POST AND ALL COMMENTS
-	Post.findOne({ where: { id: req.body.post.id } })
+	Post.findOne({ where: { id: req.params.id } })
 		.then(function postDisplay(post) {
 			if (post) {
-				Comment.findAll({ where: { postId: req.body.post.id } }).then(
+				Comment.findAll({ where: { postId: req.params.id } }).then(
 					function commentDisplay(comments) {
 						if (comments) {
 							res.status(200).json({ post: post, comments: comments });
 						} else {
-							res.status(500).json({ comments: "No comments found." });
+							res.status(200).json({ comments: "No comments found." });
 						}
 					}
 				);
 			} else {
-				res.status(500).json({ error: "Post not found." });
+				res.status(404).json({ error: "Post not found." });
 			}
 		})
 		.catch((err) => res.status(500).send({ error: err }));
 });
 
-router.get("/public_full", function (req, res) {
+router.get("/public_full/:id", function (req, res) {
 	// GUEST ACCESS TO SINGLE POST AND ALL COMMENTS
-	Post.findOne({ where: { id: req.body.post.id, private: false } })
+	Post.findOne({ where: { id: req.params.id, private: false } })
 		.then(function postDisplay(post) {
 			if (post) {
 				Comment.findAll({
-					where: { postId: req.body.post.id, private: false },
+					where: { postId: req.params.id, private: false },
 				}).then(function commentDisplay(comments) {
 					if (comments) {
 						res.status(200).json({ post: post, comments: comments });
@@ -137,26 +139,26 @@ router.put("/update", validateSession, function (req, res) {
 		private: req.body.post.private,
 		edited: true,
 	};
-	const query = { where: { postId: req.body.post.id, userId: req.user.id } };
+	const query = { where: { id: req.body.post.id, userId: req.user.id } };
 	Post.update(updatePost, query)
 		.then(function updatedPosts(posts) {
-			if (posts === 1) {
-				res.status(200).json({ message: "Update successful" });
+			if (posts[0] === 1) {
+				res.status(200).json({ message: "Update successful", posts });
 			} else {
-				res.status(500).json({ error: "Update not allowed." });
+				res.status(500).json({ error: "Update not allowed.", posts });
 			}
 		})
 		.catch((err) => res.status(500).send({ error: err }));
 });
 
-router.delete("/delete", validateSession, function (req, res) {
-	const query = { where: { postId: req.body.post.id, userId: req.user.id } };
+router.delete("/delete/:id", validateSession, function (req, res) {
+	const query = { where: { id: req.params.id, userId: req.user.id } };
 	Post.destroy(query)
-		.then(function deletedPosts(deleted) {
-			if (deleted === 0) {
-				res.status(500).json({ error: "Delete not allowed." });
+		.then((deleted) => {
+			if (deleted) {
+				res.status(200).json({ message: "Delete successful", json });
 			} else {
-				res.status(200).json({ message: "Delete successful" });
+				res.status(500).json({ error: "Delete not allowed.", json });
 			}
 		})
 		.catch((err) => res.status(500).send({ error: err }));
