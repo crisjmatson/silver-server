@@ -179,10 +179,10 @@ router.get("/admin_view", validateAdmin, function (req, res) {
 		.catch((err) => res.status(500).send({ error: err }));
 });
 
-router.delete("/admin_delete", validateAdmin, function (req, res) {
+router.delete("/admin_delete/:id", validateAdmin, function (req, res) {
 	// DELETE POST AND ALL COMMENTS ON POST
-	Comment.destroy({ where: { postId: req.body.post.id } });
-	Post.destroy({ where: { id: req.body.post.id } })
+	Comment.destroy({ where: { postId: req.params.id } });
+	Post.destroy({ where: { id: req.params.id } })
 		.then(() => res.status(200).json({ message: "post information deleted" }))
 		.catch((err) => res.status(500).send({ error: err }));
 });

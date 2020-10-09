@@ -70,7 +70,6 @@ router.get("/all", validateSession, function (req, res) {
 router.put("/update/:id", validateSession, function (req, res) {
 	// USER ACCESS TO UPDATE OWN COMMENTS
 	const updateComment = {
-		//adding comment ID in commentman for testing- add in client selection\
 		body: req.body.comment.body,
 		private: req.body.comment.private,
 		edited: true,
@@ -115,9 +114,28 @@ router.get("/admin_view", validateAdmin, function (req, res) {
 		.catch((err) => res.status(500).send({ error: err }));
 });
 
-router.delete("/admin_delete", validateAdmin, function (req, res) {
+router.put("/adminupdate/:id", validateAdmin, function (req, res) {
+	// ADMIN ACCESS TO UPDATE ALL COMMENTS
+	const updateComment = {
+		//adding comment ID in commentman for testing- add in client selection\
+		body: req.body.comment.body,
+		edited: true,
+	};
+	const query = { where: { id: req.params.id } };
+	Comment.update(updateComment, query)
+		.then(function updatedComments(comments) {
+			if (comments[0] === 0) {
+				res.status(500).json({ error: "Comment access not allowed." });
+			} else {
+				res.status(200).json({ message: "Comment update successful" });
+			}
+		})
+		.catch((err) => res.status(500).send({ error: err }));
+});
+
+router.delete("/admin_delete/:id", validateAdmin, function (req, res) {
 	// ADMIN DELETE COMMENT
-	Comment.destroy({ where: { id: req.body.comment.id } })
+	Comment.destroy({ where: { id: req.params.id } })
 		.then(() =>
 			res.status(200).json({ message: "comment information deleted" })
 		)

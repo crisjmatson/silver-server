@@ -8,6 +8,7 @@ const validateAdmin = (req, res, next) => {
 		if (!err && decoded) {
 			User.findOne({ where: { id: decoded.id } })
 				.then((user) => {
+					console.log(user.role);
 					if (!user) throw "err";
 					if (user.role !== "admin") throw "err";
 					req.user = user;
