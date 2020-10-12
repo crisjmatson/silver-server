@@ -8,7 +8,7 @@ let profile = require("./controllers/profilecontroller");
 let post = require("./controllers/postcontroller");
 let comment = require("./controllers/commentcontroller");
 
-sequelize.sync({ force: true });
+sequelize.sync();
 
 app.use(require("./middleware/headers.js"));
 
