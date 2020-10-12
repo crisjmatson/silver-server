@@ -22,7 +22,6 @@ router.post("/start", function (req, res) {
 					username: user.username,
 					role: user.role,
 				},
-				/* { name: user.name, id: user.id, role: user.role }, */
 				process.env.SIGNATURE,
 				{
 					expiresIn: 60 * 60 * 24,
@@ -72,24 +71,10 @@ router.post("/enter", function (req, res) {
 		})
 		.catch((err) => res.status(500).send({ error: err }));
 });
-router.get("/:id", function (req, res) {
-	// !! GET USERNAME !!
-	User.findOne({
-		where: { id: req.params.id },
-	})
-		.then(function userDisplay(user) {
-			if (user) {
-				res.status(200).json(user.username);
-			} else {
-				res.status(500).json({ error: "user profile not available." });
-			}
-		})
-		.catch((err) => res.status(500).send({ error: err }));
-});
 
-router.get("/view/:id", validateSession, function (req, res) {
+router.get("/view", validateSession, function (req, res) {
 	User.findOne({
-		where: { username: req.params.id },
+		where: { id: req.user.id },
 	})
 		.then(function userDisplay(user) {
 			if (user) {
