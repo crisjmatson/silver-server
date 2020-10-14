@@ -37,7 +37,14 @@ router.get("/view", validateSession, function (req, res) {
 			if (profile) {
 				res.status(200).json({ profile: profile });
 			} else {
-				res.status(500).json({ error: "User profile not available." });
+				Profile.create({
+					userId: req.user.id,
+				}).then(function profileCreate(profile) {
+					res.status(200).json({
+						profile: profile,
+						message: "Profile created.",
+					});
+				});
 			}
 		})
 		.catch((err) => res.status(500).send({ error: err }));

@@ -10,7 +10,7 @@ module.exports = (sequelize, DataTypes) => {
 			allowNull: true,
 		},
 		body: {
-			type: DataTypes.STRING,
+			type: DataTypes.TEXT,
 			allowNull: false,
 		},
 		tags: {
@@ -26,7 +26,7 @@ module.exports = (sequelize, DataTypes) => {
 		author: {
 			type: DataTypes.STRING,
 			allowNull: false,
-		}
+		},
 	});
 	return Post;
 };

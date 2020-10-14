@@ -4,6 +4,7 @@ let Post = require("../db").import("../models/post");
 let Comment = require("../db").import("../models/comment");
 let validateSession = require("../middleware/validate-session");
 let validateAdmin = require("../middleware/validate-admin");
+//const { contains } = require("sequelize/types/lib/operators");
 
 router.post("/", validateSession, function (req, res) {
 	// GENERAL POST CREATION FOR ALL USERS
@@ -124,6 +125,19 @@ router.get("/full", validateSession, function (req, res) {
 				);
 			} else {
 				res.status(500).json({ error: "Post not found." });
+			}
+		})
+		.catch((err) => res.status(500).send({ error: err }));
+});
+
+router.get("/tagged/:tag", validateSession, function (req, res) {
+	// USER ACCESS TO ALL POST BY TAG
+	Post.findAll({ tags: [`${req.params.tag}`] })
+		.then(function postDisplayAll(posts) {
+			if (posts) {
+				res.status(200).json({ posts: posts });
+			} else {
+				res.status(500).json({ error: "No posts found." });
 			}
 		})
 		.catch((err) => res.status(500).send({ error: err }));
