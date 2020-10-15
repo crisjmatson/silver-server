@@ -108,13 +108,12 @@ router.get("/public_full/:id", function (req, res) {
 		})
 		.catch((err) => res.status(500).send({ error: err }));
 });
-router.get("/full", validateSession, function (req, res) {
+router.get("/full/:id", validateSession, function (req, res) {
 	// USER ACCESS TO SINGLE POST AND ALL COMMENTS
-	Post.findOne({ where: { id: req.body.post.id } })
+	Post.findOne({ where: { id: req.params.id } })
 		.then(function postDisplay(post) {
-			//res.send({ post: post });
 			if (post) {
-				Comment.findAll({ where: { postId: req.body.post.id } }).then(
+				Comment.findAll({ where: { postId: req.params.id } }).then(
 					function commentDisplay(comments) {
 						if (comments) {
 							res.status(200).json({ post: post, comments: comments });
