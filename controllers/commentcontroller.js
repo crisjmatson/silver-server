@@ -4,10 +4,6 @@ let Comment = require("../db").import("../models/comment");
 let validateSession = require("../middleware/validate-session");
 let validateAdmin = require("../middleware/validate-admin");
 
-router.get("/test", function (req, res) {
-	res.send("test comment route success!");
-});
-
 router.post("/", validateSession, function (req, res) {
 	// GENERAL COMMENT FOR ALL USERS
 	Comment.create({
